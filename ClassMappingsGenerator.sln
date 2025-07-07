@@ -1,0 +1,86 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36127.28
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClassMappingsGenerator", "ClassMappingsGenerator\ClassMappingsGenerator.csproj", "{67CE19A6-231E-42F1-A3C8-9CCCD81C0BD3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClassMappingsGenerator.Attributes", "ClassMappingsGenerator.Attributes\ClassMappingsGenerator.Attributes.csproj", "{301345B2-87A6-4137-BF89-E14686906264}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClassMappingsGenerator.Tests", "ClassMappingsGenerator.Tests\ClassMappingsGenerator.Tests.csproj", "{95E1A670-5569-438A-9BED-487DAC904191}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClassMappingsGenerator.Analyzer", "ClassMappingsGenerator.Analyzer\ClassMappingsGenerator.Analyzer\ClassMappingsGenerator.Analyzer.csproj", "{6A576FAF-C3C4-4894-9CD1-7A29C2A72424}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClassMappingsGenerator.Analyzer.CodeFixes", "ClassMappingsGenerator.Analyzer\ClassMappingsGenerator.Analyzer.CodeFixes\ClassMappingsGenerator.Analyzer.CodeFixes.csproj", "{4B04AFF3-189F-45E9-887E-8A70FA8CA6FE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClassMappingsGenerator.Package", "ClassMappingsGenerator.Package\ClassMappingsGenerator.Package.csproj", "{F4531752-59A0-4692-9009-FDBEC1763029}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClassMappingsGenerator.Analyzer.Test", "ClassMappingsGenerator.Analyzer\ClassMappingsGenerator.Analyzer.Test\ClassMappingsGenerator.Analyzer.Test.csproj", "{3060224E-BC19-49CD-93AB-7D7E01B17978}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Analyzer", "Analyzer", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClassMappingsGenerator.ProjectAnalysisUtills", "ClassMappingsGenerator.ProjectAnalysis\ClassMappingsGenerator.ProjectAnalysisUtills.csproj", "{3ED63E41-0D3B-4D72-BB2A-1E447309EFA8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClassMappingsGenerator.Examples", "ClassMappingsGenerator.Examples\ClassMappingsGenerator.Examples.csproj", "{6F8BF9FF-C2C6-465A-8283-7EEE0CD4AE55}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClassMappingsGenerator.Mappings", "ClassMappingsGenerator.Mappings\ClassMappingsGenerator.Mappings.csproj", "{53510843-B621-F862-2FB5-C7CE0AF5DAF6}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{67CE19A6-231E-42F1-A3C8-9CCCD81C0BD3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{67CE19A6-231E-42F1-A3C8-9CCCD81C0BD3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{67CE19A6-231E-42F1-A3C8-9CCCD81C0BD3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{67CE19A6-231E-42F1-A3C8-9CCCD81C0BD3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{301345B2-87A6-4137-BF89-E14686906264}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{301345B2-87A6-4137-BF89-E14686906264}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{301345B2-87A6-4137-BF89-E14686906264}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{301345B2-87A6-4137-BF89-E14686906264}.Release|Any CPU.Build.0 = Release|Any CPU
+		{95E1A670-5569-438A-9BED-487DAC904191}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{95E1A670-5569-438A-9BED-487DAC904191}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{95E1A670-5569-438A-9BED-487DAC904191}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{95E1A670-5569-438A-9BED-487DAC904191}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6A576FAF-C3C4-4894-9CD1-7A29C2A72424}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6A576FAF-C3C4-4894-9CD1-7A29C2A72424}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6A576FAF-C3C4-4894-9CD1-7A29C2A72424}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6A576FAF-C3C4-4894-9CD1-7A29C2A72424}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4B04AFF3-189F-45E9-887E-8A70FA8CA6FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4B04AFF3-189F-45E9-887E-8A70FA8CA6FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4B04AFF3-189F-45E9-887E-8A70FA8CA6FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4B04AFF3-189F-45E9-887E-8A70FA8CA6FE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F4531752-59A0-4692-9009-FDBEC1763029}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F4531752-59A0-4692-9009-FDBEC1763029}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F4531752-59A0-4692-9009-FDBEC1763029}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F4531752-59A0-4692-9009-FDBEC1763029}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3060224E-BC19-49CD-93AB-7D7E01B17978}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3060224E-BC19-49CD-93AB-7D7E01B17978}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3060224E-BC19-49CD-93AB-7D7E01B17978}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3060224E-BC19-49CD-93AB-7D7E01B17978}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3ED63E41-0D3B-4D72-BB2A-1E447309EFA8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3ED63E41-0D3B-4D72-BB2A-1E447309EFA8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3ED63E41-0D3B-4D72-BB2A-1E447309EFA8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3ED63E41-0D3B-4D72-BB2A-1E447309EFA8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6F8BF9FF-C2C6-465A-8283-7EEE0CD4AE55}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6F8BF9FF-C2C6-465A-8283-7EEE0CD4AE55}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6F8BF9FF-C2C6-465A-8283-7EEE0CD4AE55}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6F8BF9FF-C2C6-465A-8283-7EEE0CD4AE55}.Release|Any CPU.Build.0 = Release|Any CPU
+		{53510843-B621-F862-2FB5-C7CE0AF5DAF6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{53510843-B621-F862-2FB5-C7CE0AF5DAF6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{53510843-B621-F862-2FB5-C7CE0AF5DAF6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{53510843-B621-F862-2FB5-C7CE0AF5DAF6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{6A576FAF-C3C4-4894-9CD1-7A29C2A72424} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{4B04AFF3-189F-45E9-887E-8A70FA8CA6FE} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{3060224E-BC19-49CD-93AB-7D7E01B17978} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B39B7778-8F0F-4A7F-824B-A6855815FE67}
+	EndGlobalSection
+EndGlobal
