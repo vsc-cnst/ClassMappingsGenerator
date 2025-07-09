@@ -5,21 +5,31 @@ namespace vsc.ClassMappingsGenerator.Mappings
 {
     public class TypeComparer : IComparer<Type>
     {
+        ///<summary>
+        /// Compares two <see cref="Type"/> objects based on their assignability.
+        /// </summary>
+        /// <param name="a">The first <see cref="Type"/> to compare.</param>
+        /// <param name="b">The second <see cref="Type"/> to compare.</param>
+        /// <returns>
+        /// A negative integer if <paramref name="a"/> is assignable from <paramref name="b"/>;
+        /// a positive integer if <paramref name="b"/> is assignable from <paramref name="a"/>;
+        /// zero if both are the same or neither is assignable from the other.
+        /// </summary>
         public int Compare(Type? a, Type? b)
         {
-            if (a == b) return 0;                   // Same type
-            if (a == null) return -1;               // null is less than anything
-            if (b == null) return 1;                // anything is greater than null
-            if (a.IsAssignableFrom(b)) return -1;   // a is a base type of b
-            if (b.IsAssignableFrom(a)) return 1;    // b is a base type of a
-            return 0;                               // No direct assignable relationship
+            if (a == b) return 0;
+            if (a == null) return -1;
+            if (b == null) return 1;
+            if (a.IsAssignableFrom(b)) return -1;
+            if (b.IsAssignableFrom(a)) return 1;
+            return 0;
         }
     }
 
     public static class SystemTypeExtensions
     {
         /// <summary>
-        /// Determines whether the specified <see cref="Type"/> is nullable.
+        /// Determines whether the specified <see cref="Type"/> is nullable (i.e., Nullable&lt;T&gt;).
         /// </summary>
         /// <param name="type">The <see cref="Type"/> to check.</param>
         /// <returns>
@@ -27,19 +37,17 @@ namespace vsc.ClassMappingsGenerator.Mappings
         /// </returns>
         public static bool IsNullable(this Type type)
         {
-            // Check for Nullable<T> (value types like int? are nullable)
-            if (Nullable.GetUnderlyingType(type) != null) return true;
-
-            return false; // Assume non-nullable if it's a value type and not Nullable<T>
+            // Check for Nullable<T>.
+            return Nullable.GetUnderlyingType(type) != null;
         }
+
         /// <summary>
-        /// Check if the type is a basic type (primitive, enum, string, float, decimal)
+        /// Check if the type is a basic type (primitive, enum, string, float, decimal).
         /// </summary>
-        /// <param name="type"></param>
+        /// <param name="type">The <see cref="Type"/> to check.</param>
         /// <returns>
-        /// <see langword="true"/> if the type is <see cref="Type.IsPrimitive"/>, <see cref="Type.IsEnum"/>, <see cref="string"/>, <see cref="float"/>, <see cref="decimal"/>
-        /// <br/>
-        /// <see langword="false"/> otherwise
+        /// <see langword="true"/> if the type is <see cref="Type.IsPrimitive"/>, <see cref="Type.IsEnum"/>, <see cref="string"/>, <see cref="float"/>, or <see cref="decimal"/>;
+        /// <see langword="false"/> otherwise.
         /// </returns>
         public static bool IsBasicType(this Type? type)
         {
@@ -47,35 +55,41 @@ namespace vsc.ClassMappingsGenerator.Mappings
 
             var underlyingType = Nullable.GetUnderlyingType(type) ?? type;
 
-            return underlyingType.IsPrimitive || underlyingType.IsEnum || underlyingType == typeof(string) || underlyingType == typeof(float) || underlyingType == typeof(decimal);
+            return underlyingType.IsPrimitive
+                || underlyingType.IsEnum
+                || underlyingType == typeof(string)
+                || underlyingType == typeof(float)
+                || underlyingType == typeof(decimal);
         }
 
         /// <summary>
-        /// Check if the type implements <see cref="IEnumerable{T}"/>
+        /// Check if the type implements <see cref="IEnumerable{T}"/>.
         /// </summary>
-        /// <param name="type"></param>
+        /// <param name="type">The <see cref="Type"/> to check.</param>
         /// <returns>
-        /// <see langword="true"/> if the type implements <see cref="IEnumerable{T}"/>
-        /// <br/>
-        /// <see langword="false"/> otherwise
+        /// <see langword="true"/> if the type implements <see cref="IEnumerable{T}"/>;
+        /// <see langword="false"/> otherwise.
         /// </returns>
         public static bool IsIEnumerable(this Type? type)
         {
+            // Returns true if the type implements IEnumerable<T>.
             if (type == null) return false;
 
             var underlyingType = Nullable.GetUnderlyingType(type) ?? type;
 
-            return underlyingType.IsGenericType && (underlyingType.GetInterface(typeof(IEnumerable<>).Name) != null || underlyingType.GetGenericTypeDefinition() == typeof(IEnumerable<>));
+            // Check for generic IEnumerable.
+            return underlyingType.IsGenericType &&
+                   (underlyingType.GetInterface(typeof(IEnumerable<>).Name) != null ||
+                    underlyingType.GetGenericTypeDefinition() == typeof(IEnumerable<>));
         }
 
         /// <summary>
-        /// Check if the type implements <see cref="ICollection{T}"/>
+        /// Check if the type implements <see cref="ICollection{T}"/>.
         /// </summary>
-        /// <param name="type"></param>
+        /// <param name="type">The <see cref="Type"/> to check.</param>
         /// <returns>
-        /// <see langword="true"/> if the type implements <see cref="ICollection{T}"/>
-        /// <br/>
-        /// <see langword="false"/> otherwise
+        /// <see langword="true"/> if the type implements <see cref="ICollection{T}"/>;
+        /// <see langword="false"/> otherwise.
         /// </returns>
         public static bool IsICollection(this Type? type)
         {
@@ -83,20 +97,35 @@ namespace vsc.ClassMappingsGenerator.Mappings
 
             var underlyingType = Nullable.GetUnderlyingType(type) ?? type;
 
-            return !type.IsBasicType() && underlyingType.IsGenericType && (underlyingType.GetInterface(typeof(ICollection<>).Name) != null || underlyingType.GetGenericTypeDefinition() == typeof(ICollection<>));
+            // Exclude basic types, check for generic ICollection.
+            return !type.IsBasicType() &&
+                   underlyingType.IsGenericType &&
+                   (underlyingType.GetInterface(typeof(ICollection<>).Name) != null ||
+                    underlyingType.GetGenericTypeDefinition() == typeof(ICollection<>));
         }
 
+        /// <summary>
+        /// Check if the type implements <see cref="List{T}"/>.
+        /// </summary>
+        /// <param name="type">The <see cref="Type"/> to check.</param>
+        /// <returns>
+        /// <see langword="true"/> if the type implements <see cref="List{T}"/>;
+        /// <see langword="false"/> otherwise.
+        /// </returns>
         public static bool IsList(this Type? type)
         {
             if (type == null) return false;
 
             var underlyingType = Nullable.GetUnderlyingType(type) ?? type;
 
-            return !type.IsBasicType() && underlyingType.IsGenericType && (underlyingType.GetInterface(typeof(List<>).Name) != null || underlyingType.GetGenericTypeDefinition() == typeof(List<>));
+            // Exclude basic types, check for generic List.
+            return !type.IsBasicType() &&
+                   underlyingType.IsGenericType &&
+                   (underlyingType.GetInterface(typeof(List<>).Name) != null ||
+                    underlyingType.GetGenericTypeDefinition() == typeof(List<>));
         }
 
         #region MapAttribute
-       
 
         /// <summary>
         /// Filters the collection of <see cref="Type"/> to include only those that inherit from the specified base <see cref="Type"/>.
@@ -108,7 +137,9 @@ namespace vsc.ClassMappingsGenerator.Mappings
         /// An <see cref="IEnumerable{T}"/> of <see cref="Type"/> that inherit from the specified base <see cref="Type"/>.
         /// </returns>
         public static IEnumerable<Type> WhereInheritsFrom(this IEnumerable<Type> types, Type baseType, bool includeBaseType = false)
-            => types.Where(t => includeBaseType ? baseType.IsAssignableFrom(t) : t != baseType && baseType.IsAssignableFrom(t)).Distinct();
+        {
+            return types.Where(t => t.InheritsFrom(baseType, includeBaseType)).Distinct();
+        }
 
         /// <summary>
         /// Determines whether the specified <see cref="Type"/> inherits from the specified base <see cref="Type"/>.
@@ -120,7 +151,9 @@ namespace vsc.ClassMappingsGenerator.Mappings
         /// <see langword="true"/> if the specified <see cref="Type"/> inherits from the base <see cref="Type"/>; otherwise, <see langword="false"/>.
         /// </returns>
         public static bool InheritsFrom(this Type type, Type baseType, bool includeBaseType = false)
-            => (includeBaseType ? type == baseType : type != baseType) && baseType.IsAssignableFrom(type);
+        {
+            return (includeBaseType ? type == baseType : type != baseType) && baseType.IsAssignableFrom(type);
+        }
 
         /// <summary>
         /// Filters the collection to include only those that are base types of the specified parent <see cref="Type"/>.
@@ -132,7 +165,9 @@ namespace vsc.ClassMappingsGenerator.Mappings
         /// An <see cref="IEnumerable{T}"/> of <see cref="Type"/> that are base types of the specified parent <see cref="Type"/>.
         /// </returns>
         public static IEnumerable<Type> WhereIsBaseTypeOf(this IEnumerable<Type> types, Type parentType, bool includeBaseType = false)
-            => types.Where(t => includeBaseType ? parentType.IsBaseTypeOf(t) : t != parentType && parentType.IsBaseTypeOf(t)).Distinct();
+        {
+            return types.Where(t => parentType.IsBaseTypeOf(t,includeBaseType)).Distinct();
+        }
 
         /// <summary>
         /// Determines whether the specified <see cref="Type"/> is a base type of the specified child <see cref="Type"/>.
@@ -144,7 +179,9 @@ namespace vsc.ClassMappingsGenerator.Mappings
         /// <see langword="true"/> if the specified <see cref="Type"/> is a base type of the child <see cref="Type"/>; otherwise, <see langword="false"/>.
         /// </returns>
         public static bool IsBaseTypeOf(this Type type, Type childType, bool includeChildType = false)
-            => (includeChildType ? type == childType : type != childType) && type.IsAssignableFrom(childType);
+        {
+            return (includeChildType ? type == childType : type != childType) && type.IsAssignableFrom(childType);
+        }
 
         /// <summary>
         /// Retrieves the base types of the specified <see cref="Type"/>.
@@ -157,6 +194,7 @@ namespace vsc.ClassMappingsGenerator.Mappings
         /// <exception cref="ArgumentNullException">Thrown when the specified <see cref="Type"/> is null.</exception>
         public static IEnumerable<Type> BaseTypes(this Type type, IEnumerable<Type>? universe = null)
         {
+            // Generated by Copilot: Yields all base types of the given type, optionally filtered by universe.
             if (type == null)
                 throw new ArgumentNullException(nameof(type));
 
@@ -185,9 +223,9 @@ namespace vsc.ClassMappingsGenerator.Mappings
             if (type == null)
                 throw new ArgumentNullException(nameof(type));
 
-            var descendants = universe?.Where(t => t.IsSubclassOf(type)) ?? Enumerable.Empty<Type>();
-            return descendants;
+            return universe?.Where(t => t.IsSubclassOf(type)) ?? Enumerable.Empty<Type>();
         }
+
         /// <summary>
         /// Filters the collection of <see cref="Type"/> to include only root elements (types that do not inherit from any other type in the collection).
         /// </summary>
@@ -196,7 +234,9 @@ namespace vsc.ClassMappingsGenerator.Mappings
         /// An <see cref="IEnumerable{T}"/> of root <see cref="Type"/> instances.
         /// </returns>
         public static IEnumerable<Type> RootElements(this IEnumerable<Type> types)
-            => types.Where(t => t.BaseType == null || !types.Contains(t.BaseType)).Distinct();
+        {
+            return types.Where(t => t.BaseType == null || !types.Contains(t.BaseType)).Distinct();
+        }
 
         /// <summary>
         /// Groups the collection of <see cref="Type"/> by their root elements (types that do not inherit from any other type in the collection).
@@ -209,7 +249,14 @@ namespace vsc.ClassMappingsGenerator.Mappings
         /// <b>value</b> is a collection of <see cref="Type"/> that inherit from the key root type.
         /// </returns>
         public static Dictionary<Type, IEnumerable<Type>> GroupByRootElements(this IEnumerable<Type> types)
-            => types.RootElements().OrderBy(r => r.Name).ToDictionary(root => root, root => (IEnumerable<Type>)types.WhereInheritsFrom(root).OrderBy(t => t.Name));
+        {
+            return types.RootElements()
+                        .OrderBy(r => r.Name)
+                        .ToDictionary(
+                            root => root,
+                            root => (IEnumerable<Type>)types.WhereInheritsFrom(root).OrderBy(t => t.Name)
+                        );
+        }
 
         /// <summary>
         /// Retrieves the members of the specified <see cref="Type"/> that have the specified attribute.
@@ -221,27 +268,25 @@ namespace vsc.ClassMappingsGenerator.Mappings
         /// </returns>
         public static IEnumerable<(MemberInfo member, T attribute)> GetMembersWithAttribute<T>(this Type type)
         {
-            var a = type.GetProperties(BindingFlags.Public | BindingFlags.Instance).ToList().Select(p => p.GetCustomAttributes(false)).ToList();
-            var b = a.SelectMany(a => a).Where(a => a.GetType().FullName == typeof(T).FullName).ToList();
-            // Get properties with attribute T 
-            var _properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                                    .SelectMany(
-                                        p => p.GetCustomAttributes(false).Where(attr => attr.GetType().FullName == typeof(T).FullName)
-                                        , (m, p) => (m, p)
-                                    );
-            var properties = _properties.Select(i => (member: (MemberInfo)i.m, attribute: (T)i.p));
+            // Generated by Copilot: Get properties with attribute T.
+            var properties = type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                .SelectMany(
+                    prop => prop.GetCustomAttributes(typeof(T), false)
+                                .Cast<T>()
+                                .Select(attr => (member: (MemberInfo)prop, attribute: attr))
+                );
 
-            // Get fields with with attribute T 
+            // Generated by Copilot: Get fields with attribute T.
             var fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance)
-                                    .SelectMany(
-                                        f => f.GetCustomAttributes(false).Where(attr => attr.GetType().FullName == typeof(T).FullName)
-                                        , (m, f) => (m, f)
-                                    )
-                                    .Select(i => (member: (MemberInfo)i.m, attribute: (T)i.f));
+                .SelectMany(
+                    field => field.GetCustomAttributes(typeof(T), false)
+                                  .Cast<T>()
+                                  .Select(attr => (member: (MemberInfo)field, attribute: attr))
+                );
 
             return properties.Concat(fields);
         }
 
-        #endregion Get Root Elements
+        #endregion
     }
 }
