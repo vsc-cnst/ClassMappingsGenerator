@@ -96,17 +96,7 @@ namespace vsc.ClassMappingsGenerator.Mappings
         }
 
         #region MapAttribute
-        /// <summary>
-        /// Retrieves all custom attributes of type <see cref="MapAttribute{T1, T2, T3}"/> from the specified <see cref="Type"/>.
-        /// </summary>
-        /// <param name="type">The <see cref="Type"/> to inspect for custom attributes.</param>
-        /// <returns>
-        /// An <see cref="IEnumerable{T}"/> of <see cref="IMapAttribute"/> instances found on the specified <see cref="Type"/>.
-        /// </returns>
-        public static IEnumerable<MapAttribute> GetMapAttributes(this Type type)
-        {
-            return type.GetCustomAttributes(typeof(MapAttribute)).Cast<IMapAttribute>();
-        }
+       
 
         /// <summary>
         /// Filters the collection of <see cref="Type"/> to include only those that inherit from the specified base <see cref="Type"/>.
@@ -254,3 +244,4 @@ namespace vsc.ClassMappingsGenerator.Mappings
 
         #endregion Get Root Elements
     }
+}

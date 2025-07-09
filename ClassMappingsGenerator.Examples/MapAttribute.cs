@@ -4,9 +4,6 @@ namespace vsc.ClassMappingsGenerator.Examples.MapAttribute
 {
     public class MapAttributeExample { }
 
-    [Map(typeof(MapAttributeExample))]
-    public class MapAttributeExample1DTO { }
-
     [Map<MapAttributeExample>()]
     public class MapAttributeExample2DTO { }
 
