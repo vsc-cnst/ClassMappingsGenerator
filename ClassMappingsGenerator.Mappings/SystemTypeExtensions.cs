@@ -1,5 +1,4 @@
 ﻿using System.Reflection;
-using vsc.ClassMappingsGenerator.Attributes;
 
 namespace vsc.ClassMappingsGenerator.Mappings
 {

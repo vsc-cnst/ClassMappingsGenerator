@@ -1,165 +1,221 @@
-﻿
-using System.Reflection;
+﻿using System.Reflection;
 
 namespace vsc.ClassMappingsGenerator.Attributes
 {
+    /// <summary>
+    /// Specifies the direction of mapping for a member between a local class and a mapped class.
+    /// </summary>
     [Flags]
     public enum MapMemberAction
     {
         /// <summary>
-        /// Gets the value from Model Class <see cref="MemberInfo">member</see> and sets <see cref="iDTO"/> <see cref="MemberInfo">member</see>
+        /// Copy value from mapped class to local class (getter in mapped class, setter in local class).
         /// </summary>
-        CopyToDto = 1 << 2,
+        CopyToSource = 1 << 2,
 
         /// <summary>
-        /// Sets the value from Model Class <see cref="MemberInfo">member</see> and sets <see cref="iDTO"/> <see cref="MemberInfo">member</see>
+        /// Copy value from local class to mapped class (getter in local class, setter in mapped class).
         /// </summary>
-        CopyToClass = 1 << 3,
+        CopyToTarget = 1 << 3,
     }
 
-    public interface IMapMemberAttribute
+    /// <summary>
+    /// Attribute to specify mapping information for a member in a local class to a member in a mapped class.
+    /// Only one side (the local class) should have this attribute.
+    /// <para>
+    /// <b>Note:</b> Only public instance members are supported at runtime.
+    /// </para>
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Delegate | AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = true, Inherited = true)]
+    public class MapMemberAttribute : Attribute
     {
         /// <summary>
-        /// #region e.g. "DTO > Model > PropertyGroup"
-        /// </summary>
-        public string RegionName { get; }
-
-        /// <summary>
-        /// Model Class type to be mapped
+        /// The mapped class type (the remote class).
         /// </summary>
         public Type MappedClassType { get; }
+
         /// <summary>
-        /// Mapper member getter. Model Class member to get value from.
+        /// The member in the mapped class to get value from (when copying from mapped class to local class).
         /// </summary>
         public MemberInfo? MappedMemberGetter { get; }
+
         /// <summary>
-        /// Mapper member setter. Model Class member to set value to.
+        /// The member in the mapped class to set value to (when copying from local class to mapped class).
         /// </summary>
         public MemberInfo? MappedMemberSetter { get; }
 
         /// <summary>
-        /// Comment to add to the mapping.
+        /// Optional region name for grouping mappings.
         /// </summary>
-        public string? Comment { get; }
-
-        /// <summary>
-        /// If the mapping is to copy to <see cref="iDTO"/>, to Model Class or both.
-        /// </summary>
-
-        /// <summary>
-        /// If <see cref="MapAction"/> has <see cref="MapMemberAction.CopyToDto"/> flag.
-        /// </summary>public MapMemberAction MapAction { get; }
-        public bool CopyToDTO { get; }
-
-        /// <summary>
-        /// If <see cref="MapAction"/> has <see cref="MapMemberAction.CopyToClass"/> flag.
-        /// </summary>
-        public bool CopyToClass { get; }
-    }
-
-    /// <summary>
-    /// Attribute to map a member of a Model Class to a member of a <see cref="iDTO"/>
-    /// </summary>
-    /// <typeparam name="TClassType"></typeparam>
-    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Delegate | AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = true, Inherited = true)]
-    public class MapMemberAttribute<TClassType> : Attribute, IMapMemberAttribute
-    {
         public string? RegionName { get; }
 
-        public Type MappedClassType { get; }
-
-        public MemberInfo? MappedMemberGetter { get; }
-
-        public MemberInfo? MappedMemberSetter { get; }
+        /// <summary>
+        /// Optional comment for documentation.
+        /// </summary>
         public string? Comment { get; }
 
+        /// <summary>
+        /// The mapping direction.
+        /// </summary>
         public MapMemberAction MapAction { get; }
 
-        public bool CopyToDTO => MapAction.HasFlag(MapMemberAction.CopyToDto);
-
-        public bool CopyToClass => MapAction.HasFlag(MapMemberAction.CopyToClass);
+        /// <summary>
+        /// True if mapping is from mapped class to local class (CopyToSource).
+        /// </summary>
+        public bool CopyToSource => MapAction.HasFlag(MapMemberAction.CopyToSource);
 
         /// <summary>
-        /// Create a mapping between a <see cref="iDTO"/> member and a Model Class member.
+        /// True if mapping is from local class to mapped class (CopyToTarget).
         /// </summary>
-        /// <param name="mappedMemberName">
-        /// Name of the member in the Model Class to map to.
-        /// </param>
-        /// <param name="action">
-        /// Whether to copy the value from the Model Class to the <see cref="iDTO"/>, from the <see cref="iDTO"/> to the Model Class or both.
-        /// </param>
-        /// <param name="comment">
-        /// Comment to add to the mapping.
-        /// </param>
-        public MapMemberAttribute(string mappedMemberName, MapMemberAction action = MapMemberAction.CopyToDto | MapMemberAction.CopyToClass, string? comment = null, string[]? regions = null)
+        public bool CopyToTarget => MapAction.HasFlag(MapMemberAction.CopyToTarget);
+
+        /// <summary>
+        /// Creates a mapping between this member and a member in the mapped class.
+        /// </summary>
+        /// <param name="mappedClassType">The mapped class type.</param>
+        /// <param name="mappedMemberName">The name of the member in the mapped class to map to/from. Must be a public field, property, or method.</param>
+        /// <param name="action">The mapping direction.</param>
+        /// <param name="comment">Optional comment for documentation.</param>
+        /// <param name="regions">Optional region grouping.</param>
+        /// <exception cref="ArgumentException">Thrown if the mapped member does not exist in the mapped class or is not public.</exception>
+        protected MapMemberAttribute(
+            Type mappedClassType,
+            string mappedMemberName,
+            MapMemberAction action = MapMemberAction.CopyToSource | MapMemberAction.CopyToTarget,
+            string? comment = null,
+            string[]? regions = null)
         {
             RegionName = regions is null ? null : string.Join(" > ", regions.Where(r => !string.IsNullOrEmpty(r)));
-
-            MappedClassType = typeof(TClassType);
+            MappedClassType = mappedClassType ?? throw new ArgumentNullException(nameof(mappedClassType));
             MapAction = action;
-
-            if (CopyToDTO)
-                MappedMemberGetter = typeof(TClassType).GetMember(mappedMemberName).Single();
-
-            if (CopyToClass)
-                MappedMemberSetter = typeof(TClassType).GetMember(mappedMemberName).Single();
-
             Comment = comment;
+
+            var mappedMembers = mappedClassType.GetMember(mappedMemberName, BindingFlags.Instance | BindingFlags.Public);
+            if (mappedMembers.Length == 0)
+                throw new ArgumentException($"Member '{mappedMemberName}' not found as a public instance member in type '{mappedClassType.FullName}'. Only public members are supported at runtime.");
+
+            if (CopyToSource)
+                MappedMemberGetter = mappedMembers.Single();
+            if (CopyToTarget)
+                MappedMemberSetter = mappedMembers.Single();
         }
 
         /// <summary>
-        /// Create a mapping between a <see cref="iDTO"/> <see cref="MemberInfo">member</see> and a Model Class <see cref="MemberInfo">member</see>.
-        /// <br/>
-        /// Allows for different getter and setter.
+        /// Creates a mapping between this member and different getter/setter members in the mapped class.
         /// </summary>
-        /// <param name="getterMemberName">
-        /// Name of the <see cref="MemberInfo">member</see> in the Model Class to get value <b>from</b>.
-        /// </param>
-        /// <param name="setterMemberName">
-        /// Name of the <see cref="MemberInfo">member</see> in the Model Class to set value <b>to</b>.
-        /// </param>
-        /// <param name="comment">
-        /// Comment to add to the mapping.
-        /// </param>
-        public MapMemberAttribute(string getterMemberName, string setterMemberName, string? comment = null)
+        /// <param name="mappedClassType">The mapped class type.</param>
+        /// <param name="getterMemberName">The name of the member in the mapped class to get value from. Must be a public field, property, or method.</param>
+        /// <param name="setterMemberName">The name of the member in the mapped class to set value to. Must be a public field, property, or method.</param>
+        /// <param name="comment">Optional comment for documentation.</param>
+        /// <exception cref="ArgumentException">Thrown if the mapped members do not exist in the mapped class or are not public.</exception>
+        protected MapMemberAttribute(
+            Type mappedClassType,
+            string getterMemberName,
+            string setterMemberName,
+            string? comment = null)
         {
-            MapAction = MapMemberAction.CopyToDto | MapMemberAction.CopyToClass;
-
-            MappedClassType = typeof(TClassType);
-            MappedMemberGetter = typeof(TClassType).GetMember(getterMemberName).Single();
-            MappedMemberSetter = typeof(TClassType).GetMember(setterMemberName).Single();
-
+            MappedClassType = mappedClassType ?? throw new ArgumentNullException(nameof(mappedClassType));
+            MapAction = MapMemberAction.CopyToSource | MapMemberAction.CopyToTarget;
             Comment = comment;
+
+            var getterMembers = mappedClassType.GetMember(getterMemberName, BindingFlags.Instance | BindingFlags.Public);
+            var setterMembers = mappedClassType.GetMember(setterMemberName, BindingFlags.Instance | BindingFlags.Public);
+
+            if (getterMembers.Length == 0)
+                throw new ArgumentException($"Getter member '{getterMemberName}' not found as a public instance member in type '{mappedClassType.FullName}'. Only public members are supported at runtime.");
+            if (setterMembers.Length == 0)
+                throw new ArgumentException($"Setter member '{setterMemberName}' not found as a public instance member in type '{mappedClassType.FullName}'. Only public members are supported at runtime.");
+
+            MappedMemberGetter = getterMembers.Single();
+            MappedMemberSetter = setterMembers.Single();
         }
     }
 
     /// <summary>
-    /// <b>Attribute for Single Direction Mapping</b>. Create a mapping <b>from</b> a Model Class <see cref="MemberInfo">member</see> <b>to</b> a <see cref="iDTO"/> <see cref="MemberInfo">member</see>.
+    /// Generic attribute for mapping a member to a member in a mapped class.
     /// </summary>
-    /// <typeparam name="TClassType"></typeparam>
-    /// <param name="mappedMemberName"></param>
-    /// <param name="comment"></param>
+    /// <typeparam name="TClassType">The mapped class type.</typeparam>
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Delegate | AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = true, Inherited = true)]
-    public class MapFromMemberAttribute<TClassType>(string mappedMemberName, string? comment = null, string[]? regions = null)
-        : MapMemberAttribute<TClassType>(mappedMemberName, MapMemberAction.CopyToDto, comment, regions)
+    public class MapMemberAttribute<TClassType> : MapMemberAttribute
     {
+        /// <summary>
+        /// Creates a mapping between this member and a member in the mapped class.
+        /// </summary>
+        /// <param name="mappedMemberName">The name of the member in the mapped class to map to/from. Must be a public field, property, or method.</param>
+        /// <param name="action">The mapping direction.</param>
+        /// <param name="comment">Optional comment for documentation.</param>
+        /// <param name="regions">Optional region grouping.</param>
+        public MapMemberAttribute(
+            string mappedMemberName,
+            MapMemberAction action = MapMemberAction.CopyToSource | MapMemberAction.CopyToTarget,
+            string? comment = null,
+            string[]? regions = null)
+            : base(typeof(TClassType), mappedMemberName, action, comment, regions)
+        {
+        }
+
+        /// <summary>
+        /// Creates a mapping between this member and different getter/setter members in the mapped class.
+        /// </summary>
+        /// <param name="getterMemberName">The name of the member in the mapped class to get value from. Must be a public field, property, or method.</param>
+        /// <param name="setterMemberName">The name of the member in the mapped class to set value to. Must be a public field, property, or method.</param>
+        /// <param name="comment">Optional comment for documentation.</param>
+        public MapMemberAttribute(
+            string getterMemberName,
+            string setterMemberName,
+            string? comment = null)
+            : base(typeof(TClassType), getterMemberName, setterMemberName, comment)
+        {
+        }
     }
 
+    /// <summary>
+    /// Attribute for single direction mapping from mapped class to local class.
+    /// </summary>
+    /// <typeparam name="TClassType">The mapped class type.</typeparam>
+    /// <param name="mappedMemberName">The name of the member in the mapped class to map from. Must be a public field, property, or method.</param>
+    /// <param name="comment">Optional comment for documentation.</param>
+    /// <param name="regions">Optional region grouping.</param>
+    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Delegate | AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = true, Inherited = true)]
+    public class MapFromMemberAttribute<TClassType> : MapMemberAttribute<TClassType>
+    {
+        /// <summary>
+        /// Creates a mapping from a mapped class member to the local class member.
+        /// </summary>
+        /// <param name="mappedMemberName">The name of the member in the mapped class to map from.</param>
+        /// <param name="comment">Optional comment for documentation.</param>
+        /// <param name="regions">Optional region grouping.</param>
+        public MapFromMemberAttribute(
+            string mappedMemberName,
+            string? comment = null,
+            string[]? regions = null)
+            : base(mappedMemberName, MapMemberAction.CopyToSource, comment, regions)
+        {
+        }
+    }
 
     /// <summary>
-    /// <b>Attribute for Single Direction Mapping</b>. Create a mapping <b>to</b> a Model Class <see cref="MemberInfo">member</see> <b>from</b> a <see cref="iDTO"/> <see cref="MemberInfo">member</see>.
+    /// Attribute for single direction mapping from local class to mapped class.
     /// </summary>
-    /// <typeparam name="TClassType"></typeparam>
-    /// <param name="mappedMemberName">
-    /// Name of the member in the <b>Model Class</b> to map <b>to</b>.
-    /// </param>
-    /// <param name="comment">
-    /// Comment to add to the mapping.
-    /// </param>
+    /// <typeparam name="TClassType">The mapped class type.</typeparam>
+    /// <param name="mappedMemberName">The name of the member in the mapped class to map to. Must be a public field, property, or method.</param>
+    /// <param name="comment">Optional comment for documentation.</param>
+    /// <param name="regions">Optional region grouping.</param>
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Delegate | AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = true, Inherited = true)]
-    public class MapToMemberAttribute<TClassType>(string mappedMemberName, string? comment = null, string[]? region = null)
-        : MapMemberAttribute<TClassType>(mappedMemberName, MapMemberAction.CopyToClass, comment, region)
+    public class MapToMemberAttribute<TClassType> : MapMemberAttribute<TClassType>
     {
-
+        /// <summary>
+        /// Creates a mapping from the local class member to a mapped class member.
+        /// </summary>
+        /// <param name="mappedMemberName">The name of the member in the mapped class to map to.</param>
+        /// <param name="comment">Optional comment for documentation.</param>
+        /// <param name="regions">Optional region grouping.</param>
+        public MapToMemberAttribute(
+            string mappedMemberName,
+            string? comment = null,
+            string[]? regions = null)
+            : base(mappedMemberName, MapMemberAction.CopyToTarget, comment, regions)
+        {
+        }
     }
 }
